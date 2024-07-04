@@ -52,7 +52,7 @@ else
     if [ "$ARCH" == "aarch64" ]; then
         EXT_ARGS="CROSS_COMPILE=/usr/bin/aarch64-linux-gnu-"
     fi
-    ./make.sh $cfg $EXT_ARGS --spl-new
+    ./make.sh $cfg $EXT_ARGS --spl-new 
     if [ "$?" == "0" ]; then
         rm -rf ${cfg}_out
         mkdir -p ${cfg}_out
@@ -60,10 +60,11 @@ else
         cp uboot.img ${cfg}_out/
         echo "Compile U-boot OK!"
         md5sum ${cfg}_out/*
-        ./make.sh --idblock
-        dd if=/dev/zero of=${BOARD}_uboot_upgrade.img bs=1K count=8192
-        dd if=idblock.bin of=${BOARD}_uboot_upgrade.img bs=1K seek=32
+        ./make.sh --idblock --spl
+        dd if=/dev/zero of=${BOARD}_nor_upgrade.img bs=1K count=8192
+		dd if=idblock.bin of=${BOARD}_uboot_upgrade.img bs=1K seek=32
         dd if=idblock.bin of=${BOARD}_uboot_upgrade.img bs=1K seek=544
-        dd if=${cfg}_out/uboot.img of=${BOARD}_uboot_upgrade.img bs=1K seek=1024
+	    dd if=idblock.bin of=${BOARD}_uboot_upgrade.img bs=1K seek=1056
+		dd if=${cfg}_out/uboot.img of=${BOARD}_uboot_upgrade.img bs=1K seek=2048
     fi
 fi
