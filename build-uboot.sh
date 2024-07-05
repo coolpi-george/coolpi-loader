@@ -62,9 +62,9 @@ else
         md5sum ${cfg}_out/*
         ./make.sh --idblock --spl
         dd if=/dev/zero of=${BOARD}_nor_upgrade.img bs=1K count=8192
-		dd if=idblock.bin of=${BOARD}_uboot_upgrade.img bs=1K seek=32
-        dd if=idblock.bin of=${BOARD}_uboot_upgrade.img bs=1K seek=544
-	    dd if=idblock.bin of=${BOARD}_uboot_upgrade.img bs=1K seek=1056
-		dd if=${cfg}_out/uboot.img of=${BOARD}_uboot_upgrade.img bs=1K seek=2048
+		dd if=idblock.bin of=${BOARD}_nor_upgrade.img bs=1K seek=32
+        dd if=idblock.bin of=${BOARD}_nor_upgrade.img bs=1K seek=544
+	    dd if=idblock.bin of=${BOARD}_nor_upgrade.img bs=1K seek=1056
+		dd if=${cfg}_out/uboot.img of=${BOARD}_nor_upgrade.img bs=1K seek=2048
     fi
 fi
