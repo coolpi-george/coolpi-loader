@@ -43,7 +43,7 @@
 	"console=ttyS0\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_file=rv1106-cpnano.dtb\0" \
+	"fdt_file=rv1106-cp1b.dtb\0" \
 	"rd_file=initrd.img\0" \
 	ENV_MEM_LAYOUT_SETTINGS         \
 	ROCKCHIP_DEVICE_SETTINGS        \

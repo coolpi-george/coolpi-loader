@@ -1,0 +1,15 @@
+if TARGET_COOLPI_RV1106_EMMC
+
+config SYS_BOARD
+	default "coolpi_rv1106_emmc"
+
+config SYS_VENDOR
+	default "rockchip"
+
+config SYS_CONFIG_NAME
+	default "coolpi_rv1106_emmc"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif
