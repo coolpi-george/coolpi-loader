@@ -99,8 +99,13 @@ int tf_load_file(char *filename, unsigned long addr, int size, int *len)
 int emmc_load_file(char *filename, unsigned long addr, int size, int *len)
 {
 	mmc_default_select(0);
-	if (fs_set_blk_dev("mmc", "0:1", FS_TYPE_ANY))
+	#ifdef CONFIG_TARGET_COOLPI_RV1106_EMMC
+	if (fs_set_blk_dev("mmc", "0:4", FS_TYPE_ANY))
 		return UPDATE_FAIL;
+	#else
+	if (fs_set_blk_dev("mmc", "0:0", FS_TYPE_ANY))
+		return UPDATE_FAIL;
+	#endif
 	if(fs_read(filename, addr, 0, size, (loff_t *)len) < 0 )
 		return UPDATE_FAIL;
 	//printf("emmc Got filesize 0x%x bytes\n", *len);
@@ -356,8 +361,15 @@ static int do_checkconf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 
 	memset(str_temp, 0, sizeof(str_temp));
 	sprintf(str_temp, "rtleth=ethaddr:%s", env_get("ethaddr"));
-
 	env_update("bootargs", str_temp);
+	#ifdef CONFIG_TARGET_COOLPI_RV1106_EMMC
+	memset(str_temp, 0, sizeof(str_temp));
+	sprintf(str_temp, "blkdevparts=%s", env_get("blkdevparts"));
+	env_update("bootargs", str_temp);
+	memset(str_temp, 0, sizeof(str_temp));
+	sprintf(str_temp, "rk_dma_heap_cma=", env_get("rk_dma_heap_cma"));
+	env_update("bootargs", str_temp);
+	#endif
 
 	memset(str_temp, 0, sizeof(str_temp));
 	if (load_file_to_ram(type, "config.txt", (unsigned long) &str_temp[0], &len) != UPDATE_SUCCESS) {

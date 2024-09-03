@@ -1,3 +1,1 @@
 blkdevparts=mmcblk0:32K(env),512K@32K(idblock),256K(uboot),512M(boot),-(rootfs)
-sys_bootargs= root=/dev/mmcblk0p5 rootfstype=ext4 rk_dma_heap_cma=60M
-sd_parts=mmcblk0:16K@512(env),512K@32K(idblock),4M(uboot)

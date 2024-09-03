@@ -70,6 +70,16 @@ static int do_load_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
                 return 0;
         }
         run_command("checkconf mmc;", -1);
+        if(!run_command("load mmc 0:0 ${loadaddr} ${bootdir}${image}", 0)) {
+                run_command("load mmc 0:0 ${initrd_addr} ${bootdir}${rd_file}", -1);
+                vlen = simple_strtoul(env_get("filesize"), NULL, 16);
+                run_command("load mmc 0:0 ${fdt_addr_r} ${bootdir}${fdt_file}", -1);
+                sprintf(cmd_mod, "bootz ${loadaddr} ${initrd_addr}:%x ${fdt_addr_r}", vlen);
+                run_command(cmd_mod, -1);
+                return 0;
+        }
+		#ifdef CONFIG_TARGET_COOLPI_RV1106_EMMC
+		run_command("checkconf mmc;", -1);
         if(!run_command("load mmc 0:4 ${loadaddr} ${bootdir}${image}", 0)) {
                 run_command("load mmc 0:4 ${initrd_addr} ${bootdir}${rd_file}", -1);
                 vlen = simple_strtoul(env_get("filesize"), NULL, 16);
@@ -78,7 +88,7 @@ static int do_load_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
                 run_command(cmd_mod, -1);
                 return 0;
         }
-
+		#endif
         mdelay(1000);
 
         return 0;
@@ -96,7 +106,10 @@ void init_board_env(void)
 	run_command("c read;", -1);
 
         env_set("board_name", "CoolPi Nano RV1106");
-
+		#ifdef CONFIG_TARGET_COOLPI_RV1106_EMMC
+		env_set("blkdevparts", "mmcblk0:32K(env),512K@32K(idblock),256K(uboot),512M(boot),-(rootfs)");
+		env_set("rk_dma_heap_cma", "60M");
+		#endif
 	temp = env_get("fixmac");
 	if(temp) {
 		if(strncmp(env_get("fixmac"), "yes", 3)) {
