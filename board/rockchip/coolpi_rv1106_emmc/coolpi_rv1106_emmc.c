@@ -59,26 +59,7 @@ static int do_load_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
         char cmd_mod[128] = {0};
 
         run_command("run distro_bootcmd;", -1);
-        printf("Loading order: tf - emmc\n");
-        run_command("checkconf tf;", -1);
-        if(!run_command("load mmc 1:1 ${loadaddr} ${bootdir}${image}", 0)) {
-                run_command("load mmc 1:1 ${initrd_addr} ${bootdir}${rd_file}", -1);
-                vlen = simple_strtoul(env_get("filesize"), NULL, 16);
-                run_command("load mmc 1:1 ${fdt_addr_r} ${bootdir}${fdt_file}", -1);
-                sprintf(cmd_mod, "bootz ${loadaddr} ${initrd_addr}:%x ${fdt_addr_r}", vlen);
-                run_command(cmd_mod, -1);
-                return 0;
-        }
-        run_command("checkconf mmc;", -1);
-        if(!run_command("load mmc 0:0 ${loadaddr} ${bootdir}${image}", 0)) {
-                run_command("load mmc 0:0 ${initrd_addr} ${bootdir}${rd_file}", -1);
-                vlen = simple_strtoul(env_get("filesize"), NULL, 16);
-                run_command("load mmc 0:0 ${fdt_addr_r} ${bootdir}${fdt_file}", -1);
-                sprintf(cmd_mod, "bootz ${loadaddr} ${initrd_addr}:%x ${fdt_addr_r}", vlen);
-                run_command(cmd_mod, -1);
-                return 0;
-        }
-		#ifdef CONFIG_TARGET_COOLPI_RV1106_EMMC
+        printf("Loading order: emmc\n");
 		run_command("checkconf mmc;", -1);
         if(!run_command("load mmc 0:4 ${loadaddr} ${bootdir}${image}", 0)) {
                 run_command("load mmc 0:4 ${initrd_addr} ${bootdir}${rd_file}", -1);
@@ -88,8 +69,6 @@ static int do_load_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
                 run_command(cmd_mod, -1);
                 return 0;
         }
-		#endif
-        mdelay(1000);
 
         return 0;
 }
@@ -103,7 +82,8 @@ void init_board_env(void)
 {
         char *temp = NULL;
 
-	run_command("c read;", -1);
+		run_command("mmc read 300000 200 8;", -1);
+		run_command("env import 0x300000", 0);
 
         env_set("board_name", "CoolPi Nano RV1106");
 		#ifdef CONFIG_TARGET_COOLPI_RV1106_EMMC
@@ -114,14 +94,16 @@ void init_board_env(void)
 	if(temp) {
 		if(strncmp(env_get("fixmac"), "yes", 3)) {
 			env_set("fixmac", "yes");
-			run_command("c write;", -1);
+			run_command("env export 0x300000", 0);
+			run_command("mmc write 300000 200 8;", -1);
 		}
 	} else {
 		env_set("fixmac", "yes");
-		run_command("c write;", -1);
+			run_command("env export 0x300000", 0);
+			run_command("mmc write 300000 200 8;", -1);
 	}
-	run_command("c read;", -1);
-        env_set("board", "coolpi");
-        env_set("soc", "rv1106");
+	run_command("mmc read 300000 200 8;", -1);
+    env_set("board", "coolpi");
+    env_set("soc", "rv1106");
 }
 #endif
