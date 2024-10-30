@@ -7,6 +7,8 @@
 #include <common.h>
 #include <dwc3-uboot.h>
 #include <usb.h>
+#include <command.h>
+#include <mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,6 +33,21 @@ int board_usb_init(int index, enum usb_init_type init)
 	return dwc3_uboot_init(&dwc3_device_data);
 }
 #endif
+
+#include <asm/io.h>
+
+int rk_board_init_f(void)
+{
+
+	/* emmc and sfc iomux */
+	writel((0x7777UL << 16) | (0x1111), 0xfdc60000 + 0x0C);
+	writel((0x7777UL << 16) | (0x1111), 0xfdc60000 + 0x10);
+	writel((0x7777UL << 16) | (0x2111), 0xfdc60000 + 0x14);
+	writel((0x7777UL << 16) | (0x1111), 0xfdc60000 + 0x18);
+	writel(((7 << 0) << 16) | (1 << 0), 0xfdc60000 + 0x1C);
+
+    return 0;
+}
 
 #ifndef CONFIG_SPL_BUILD
 
@@ -63,7 +80,7 @@ static int do_load_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
                 run_command("usb start", -1);
                 run_command("ums 0 mmc 0", -1);
         }
-        run_command("run distro_bootcmd;", -1);
+/*        run_command("run distro_bootcmd;", -1);
         printf("Loading order: usb - tf - emmc\n");
         run_command("usb reset;", -1);
         run_command("checkconf usb;", -1);
@@ -83,7 +100,7 @@ static int do_load_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
                 sprintf(cmd_mod, "unzip ${loadaddr_} ${loadaddr};booti ${loadaddr} ${initrd_addr}:%x ${fdt_addr_r}", vlen);
                 run_command(cmd_mod, -1);
                 return 0;
-        }
+        }*/
 	run_command("checkconf mmc;", -1);
         if(!run_command("load mmc 0:1 ${loadaddr_} ${bootdir}${image}", 0)) {
                 run_command("load mmc 0:1 ${initrd_addr} ${bootdir}${rd_file}", -1);
