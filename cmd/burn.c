@@ -103,7 +103,7 @@ int emmc_load_file(char *filename, unsigned long addr, int size, int *len)
 	if (fs_set_blk_dev("mmc", "0:4", FS_TYPE_ANY))
 		return UPDATE_FAIL;
 	#else
-	if (fs_set_blk_dev("mmc", "0:0", FS_TYPE_ANY))
+	if (fs_set_blk_dev("mmc", "0:1", FS_TYPE_ANY))
 		return UPDATE_FAIL;
 	#endif
 	if(fs_read(filename, addr, 0, size, (loff_t *)len) < 0 )

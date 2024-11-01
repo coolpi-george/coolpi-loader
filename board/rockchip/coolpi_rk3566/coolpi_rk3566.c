@@ -80,7 +80,7 @@ static int do_load_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
                 run_command("usb start", -1);
                 run_command("ums 0 mmc 0", -1);
         }
-/*        run_command("run distro_bootcmd;", -1);
+ /*       run_command("run distro_bootcmd;", -1);
         printf("Loading order: usb - tf - emmc\n");
         run_command("usb reset;", -1);
         run_command("checkconf usb;", -1);
