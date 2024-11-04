@@ -72,7 +72,6 @@ static int do_load_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
         char cmd_mod[128] = {0};
 
         rockchip_show_logo();
-        mdelay(1000);
         if(pwr_key_flag) {
                 //printf("Power Key Setting Enter maskrom mode!\n");
                 //run_command("rbrom", -1);
@@ -111,8 +110,6 @@ static int do_load_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
                 return 0;
         }
 
-        mdelay(3000);
-
         return 0;
 }
 
@@ -130,7 +127,7 @@ void init_board_env(void)
         run_command("c read;", -1);
 
         env_set("board_name", "CoolPi RK3566");
-        env_set("vendor", "SZ YanYi TECH");
+        env_set("vendor", "SZ TianMao TECH");
 
         temp = env_get("fixmac");
         if(temp) {
@@ -143,9 +140,9 @@ void init_board_env(void)
                 run_command("c write;", -1);
         }
         run_command("c read;", -1);
-        env_set("board", "coolpi");
+        env_set("board", "CoolPi");
         env_set("board_name", "CoolPi RK3566");
-        env_set("vendor", "SZ YanYi TECH");
+        env_set("vendor", "SZ TianMao TECH");
         env_set("soc", "rk3566");
         env_set("eth1addr", "00:11:22:33:44:55");
 
