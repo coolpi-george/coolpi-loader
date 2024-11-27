@@ -68,7 +68,7 @@ else
     if [ "$?" == "0" ]; then
         rm -rf ${cfg}_out
         mkdir -p ${cfg}_out
-        cp -f rk3588_spl_loader_*.bin ${cfg}_out/loader.bin
+        cp -f *_spl_loader_*.bin ${cfg}_out/loader.bin
         cp uboot.img ${cfg}_out/
         echo "Compile U-boot OK!"
         md5sum ${cfg}_out/*
