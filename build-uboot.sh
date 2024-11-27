@@ -24,8 +24,11 @@ case "$BOARD" in
   cm3-zxfz)
     cfg="rk3566_coolpicm3_zxfz"
     ;;
+  cp3b-hmi8)
+    cfg="rk3566_coolpicp3b_hmi8"
+    ;;
   *)
-    echo "Usage: $0 {cp4b|cm5|cm5-notebook|nano|cp1b|cm3-zxfz}" >&2
+    echo "Usage: $0 {cp4b|cm5|cm5-notebook|nano|cp1b|cm3-zxfz|cp3b-hmi8}" >&2
     exit 0
     ;;
 esac
