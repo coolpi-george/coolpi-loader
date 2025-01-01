@@ -60,6 +60,8 @@
 #include <rk_mini_dump.h>
 #endif
 
+int pwr_key_flag = 0;
+
 #ifdef CONFIG_ARM64
 static ulong orig_images_ep;
 #endif
@@ -260,10 +262,6 @@ static int boot_from_udisk(void)
 	int devnum = -1;
 	char buf[32];
 
-	/* Booting priority: mmc1 > udisk */
-	if (!strcmp(env_get("devtype"), "mmc") && !strcmp(env_get("devnum"), "1"))
-		return 0;
-
 	if (!run_command("usb start", -1)) {
 		for (blk_first_device(IF_TYPE_USB, &dev);
 		     dev;
@@ -301,6 +299,10 @@ static int boot_from_udisk(void)
 			return -ENODEV;
 		}
 	}
+
+	/* Booting priority: mmc1 < udisk */
+	if (!strcmp(env_get("devtype"), "mmc") && !strcmp(env_get("devnum"), "1"))
+		return 0;
 
 	return 0;
 }
@@ -461,20 +463,23 @@ int board_late_init(void)
 #endif
 	setup_download_mode();
 	scan_run_cmd();
+#ifdef CONFIG_DRM_ROCKCHIP
+	if (rockchip_get_boot_mode() != BOOT_MODE_QUIESCENT)
+		rockchip_show_logo();
+#endif
 #ifdef CONFIG_ROCKCHIP_USB_BOOT
 	boot_from_udisk();
 #endif
+	if(pwr_key_flag) {
+        printf("Power Key Setting Enter UMS mode!\n");
+        run_command("ums 0 mmc 0", -1);
+	}
 #ifdef CONFIG_DM_CHARGE_DISPLAY
 	charge_display();
 #endif
 
 #ifdef CONFIG_ROCKCHIP_MINIDUMP
 	rk_minidump_init();
-#endif
-
-#ifdef CONFIG_DRM_ROCKCHIP
-	if (rockchip_get_boot_mode() != BOOT_MODE_QUIESCENT)
-		rockchip_show_logo();
 #endif
 #ifdef CONFIG_ROCKCHIP_EINK_DISPLAY
 	rockchip_eink_show_uboot_logo();

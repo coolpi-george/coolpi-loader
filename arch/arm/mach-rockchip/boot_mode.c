@@ -32,7 +32,7 @@ static int misc_require_recovery(u32 bcb_offset, int *bcb_recovery_msg)
 	}
 
 	if (part_get_info_by_name(dev_desc, PART_MISC, &part) < 0) {
-		printf("No misc partition\n");
+		//printf("No misc partition\n");
 		goto out;
 	}
 

@@ -82,10 +82,10 @@ static int validate_gpt_header(gpt_header *gpt_h, lbaint_t lba,
 	/* Check the GPT header signature */
 	if (le64_to_cpu(gpt_h->signature) != GPT_HEADER_SIGNATURE) {
 		if (le64_to_cpu(gpt_h->signature) != 0)
-			printf("%s signature is wrong: 0x%llX != 0x%llX\n",
-			       "GUID Partition Table Header",
-			       le64_to_cpu(gpt_h->signature),
-			       GPT_HEADER_SIGNATURE);
+			//printf("%s signature is wrong: 0x%llX != 0x%llX\n",
+			//       "GUID Partition Table Header",
+			//       le64_to_cpu(gpt_h->signature),
+			//       GPT_HEADER_SIGNATURE);
 		return -1;
 	}
 
@@ -203,11 +203,11 @@ int get_disk_guid(struct blk_desc * dev_desc, char *guid)
 	/* This function validates AND fills in the GPT header and PTE */
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			 gpt_head, &gpt_pte) != 1) {
-		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
+		//printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
 		if (is_gpt_valid(dev_desc, dev_desc->rawlba - 1,
 				 gpt_head, &gpt_pte) != 1) {
-			printf("%s: *** ERROR: Invalid Backup GPT ***\n",
-			       __func__);
+			//printf("%s: *** ERROR: Invalid Backup GPT ***\n",
+			//       __func__);
 			return -EINVAL;
 		} else {
 			printf("%s: ***        Using Backup GPT ***\n",
@@ -233,15 +233,15 @@ void part_print_efi(struct blk_desc *dev_desc)
 	/* This function validates AND fills in the GPT header and PTE */
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			 gpt_head, &gpt_pte) != 1) {
-		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
+		//printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
 		if (is_gpt_valid(dev_desc, (dev_desc->rawlba - 1),
 				 gpt_head, &gpt_pte) != 1) {
-			printf("%s: *** ERROR: Invalid Backup GPT ***\n",
-			       __func__);
+			//printf("%s: *** ERROR: Invalid Backup GPT ***\n",
+			 //      __func__);
 			return;
 		} else {
-			printf("%s: ***        Using Backup GPT ***\n",
-			       __func__);
+			//printf("%s: ***        Using Backup GPT ***\n",
+			//       __func__);
 		}
 	}
 
@@ -322,15 +322,15 @@ int part_get_info_efi(struct blk_desc *dev_desc, int part,
 	/* This function validates AND fills in the GPT header and PTE */
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			gpt_head, &gpt_pte) != 1) {
-		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
+		//printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
 		if (is_gpt_valid(dev_desc, (dev_desc->rawlba - 1),
 				 gpt_head, &gpt_pte) != 1) {
-			printf("%s: *** ERROR: Invalid Backup GPT ***\n",
-			       __func__);
+			//printf("%s: *** ERROR: Invalid Backup GPT ***\n",
+			//       __func__);
 			return -1;
 		} else {
-			printf("%s: ***        Using Backup GPT ***\n",
-			       __func__);
+			//printf("%s: ***        Using Backup GPT ***\n",
+			//       __func__);
 		}
 	}
 
@@ -909,14 +909,14 @@ int gpt_verify_headers(struct blk_desc *dev_desc, gpt_header *gpt_head,
 	if (is_gpt_valid(dev_desc,
 			 GPT_PRIMARY_PARTITION_TABLE_LBA,
 			 gpt_head, gpt_pte) != 1) {
-		printf("%s: *** ERROR: Invalid GPT ***\n",
-		       __func__);
+		//printf("%s: *** ERROR: Invalid GPT ***\n",
+		//       __func__);
 		return -1;
 	}
 	if (is_gpt_valid(dev_desc, (dev_desc->rawlba - 1),
 			 gpt_head, gpt_pte) != 1) {
-		printf("%s: *** ERROR: Invalid Backup GPT ***\n",
-		       __func__);
+		//printf("%s: *** ERROR: Invalid Backup GPT ***\n",
+		//       __func__);
 		return -1;
 	}
 
@@ -1013,8 +1013,8 @@ int is_valid_gpt_buf(struct blk_desc *dev_desc, void *buf)
 	if ((le64_to_cpu(gpt_h->alternate_lba) + 1)
 			!= cpu_to_le64(dev_desc->rawlba) &&
 			le64_to_cpu(gpt_h->last_usable_lba) != FACTORY_UNKNOWN_LBA) {
-		printf("%s: failed checking '%s'\n", __func__,
-		       "invalid GPT Disk Size");
+		//printf("%s: failed checking '%s'\n", __func__,
+		//       "invalid GPT Disk Size");
 		return -1;
 	}
 

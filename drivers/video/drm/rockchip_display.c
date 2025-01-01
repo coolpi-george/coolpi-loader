@@ -38,6 +38,8 @@
 #include <dm/of_access.h>
 #include <dm/ofnode.h>
 #include <asm/io.h>
+#include <logo.h>
+#include <fs.h>
 
 #define DRIVER_VERSION	"v1.0.1"
 
@@ -1176,24 +1178,118 @@ static int load_kernel_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	if (!header)
 		return -ENOMEM;
 
-	len = rockchip_read_resource_file(header, bmp_name, 0, RK_BLK_SIZE);
+	/*len = rockchip_read_resource_file(header, bmp_name, 0, RK_BLK_SIZE);
 	if (len != RK_BLK_SIZE) {
 		free(header);
+		return -EINVAL;
+	}*/
+	if(logo_load_mem((char *)bmp_name, (unsigned long) header, RK_BLK_SIZE, &len)) {
+		free(header);	
 		return -EINVAL;
 	}
 	size = get_unaligned_le32(&header->file_size);
 	dst = (void *)(memory_start + MEMORY_POOL_SIZE / 2);
-	len = rockchip_read_resource_file(dst, bmp_name, 0, size);
+	/*len = rockchip_read_resource_file(dst, bmp_name, 0, size);
 	if (len != size) {
 		printf("failed to load bmp %s\n", bmp_name);
 		free(header);
 		return -ENOENT;
+	}*/
+	if(logo_load_mem((char *)bmp_name, (unsigned long) dst, size, &len)) {
+		free(header);	
+		return -EINVAL;
 	}
 
 	logo->mem = dst;
 #endif
 
 	return 0;
+}
+
+static int mmc_default_select(unsigned int dev)
+{
+	char cmd_temp[40];
+
+	memset(cmd_temp, 0, sizeof(cmd_temp));
+	sprintf(cmd_temp, "mmc dev %d", dev);
+	printf("cmd: %s\n",cmd_temp);
+	if(run_command(cmd_temp, 0)) {
+		return UPDATE_FAIL;
+	}
+
+	return  UPDATE_SUCCESS;
+}
+
+
+int tf_load_file(char *filename, unsigned long addr, int size, int *len)
+{
+	mmc_default_select(1);
+	if (fs_set_blk_dev("mmc", "1:1", FS_TYPE_ANY))
+		return UPDATE_FAIL;
+	if(fs_read(filename, addr, 0, size, (loff_t *)len) < 0 )
+		return UPDATE_FAIL;
+	printf("tf Got filesize 0x%x bytes\n", *len);
+
+	return 0;
+}
+
+int emmc_load_file(char *filename, unsigned long addr, int size, int *len)
+{
+	mmc_default_select(0);
+	#ifdef CONFIG_TARGET_COOLPI_RV1106_EMMC
+	if (fs_set_blk_dev("mmc", "0:4", FS_TYPE_ANY))
+		return UPDATE_FAIL;
+	#else
+	if (fs_set_blk_dev("mmc", "0:1", FS_TYPE_ANY))
+		return UPDATE_FAIL;
+	#endif
+	if(fs_read(filename, addr, 0, size, (loff_t *)len) < 0 )
+		return UPDATE_FAIL;
+	printf("emmc Got filesize 0x%x bytes\n", *len);
+
+	return 0;
+}
+
+int load_logo_from_disk(char *filename, unsigned long addr, int size, int *len)
+{
+	int ret = -1;
+
+	//return ret;
+
+	ret = emmc_load_file(filename, addr, size, len);
+	if(ret)
+		ret = tf_load_file(filename, addr, size, len);
+
+	return ret;
+}
+
+int logo_load_mem(char *filename, unsigned long addr, int size, int *len)
+{
+	int ret = -1;
+
+	if(!strcmp(filename, "logo.bmp")) {
+		ret = load_logo_from_disk(filename, addr, size, len);
+		if(ret) {
+			memcpy((void *)addr, &logo_bmp[0], size);
+		}
+		*len = size;
+		return 0;
+	}
+	if(!strcmp(filename, "logo_kernel.bmp")) {
+		ret = load_logo_from_disk(filename, addr, size, len);
+		if(ret) {
+			memcpy((void *)addr, &logo_bmp[0], size);
+		}
+		*len = size;
+		return 0;
+	}
+	if(!strcmp(filename, "maskrom.bmp")) {
+		memcpy((void *)addr, &logo_bmp[0], size);
+		*len = size;
+		return 0;
+	}
+
+	return -1;
 }
 
 #ifdef BMP_DECODEER_LEGACY
@@ -1223,8 +1319,12 @@ static int load_bmp_logo_legacy(struct logo_info *logo, const char *bmp_name)
 	if (!header)
 		return -ENOMEM;
 
-	len = rockchip_read_resource_file(header, bmp_name, 0, RK_BLK_SIZE);
+	/*len = rockchip_read_resource_file(header, bmp_name, 0, RK_BLK_SIZE);
 	if (len != RK_BLK_SIZE) {
+		ret = -EINVAL;
+		goto free_header;
+	}*/
+	if(logo_load_mem((char *)bmp_name, (unsigned long) header, RK_BLK_SIZE, &len)) {
 		ret = -EINVAL;
 		goto free_header;
 	}
@@ -1250,10 +1350,14 @@ static int load_bmp_logo_legacy(struct logo_info *logo, const char *bmp_name)
 		dst = pdst;
 	}
 
-	len = rockchip_read_resource_file(pdst, bmp_name, 0, size);
+	/*len = rockchip_read_resource_file(pdst, bmp_name, 0, size);
 	if (len != size) {
 		printf("failed to load bmp %s\n", bmp_name);
 		ret = -ENOENT;
+		goto free_header;
+	}*/
+	if(logo_load_mem((char *)bmp_name, (unsigned long) pdst, size, &len)) {
+		ret = -EINVAL;
 		goto free_header;
 	}
 
@@ -1450,12 +1554,17 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 
 	bmp_create(&bmp, &bitmap_callbacks);
 
-	len = rockchip_read_resource_file(bmp_data, bmp_name, 0, MAX_IMAGE_BYTES);
+	/*len = rockchip_read_resource_file(bmp_data, bmp_name, 0, MAX_IMAGE_BYTES);
 	if (len < 0) {
 		ret = -EINVAL;
 		goto free_bmp_data;
+	}*/
+	if(logo_load_mem((char *)bmp_name, (unsigned long) bmp_data, MAX_IMAGE_BYTES, &len)) {
+	    ret = -EINVAL;
+	    goto free_bmp_data;
 	}
-
+	//printf("logo_load_mem bmp:%s\n", bmp_name);
+	//printf("logo_load_mem len:%d\n", len);
 	/* analyse the BMP */
 	code = bmp_analyse(&bmp, len, bmp_data);
 	if (code != BMP_OK) {

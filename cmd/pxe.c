@@ -15,6 +15,7 @@
 #include <linux/list.h>
 #include <fs.h>
 #include <asm/io.h>
+#include <boot_rkimg.h>
 
 #include "menu.h"
 #include "cli.h"
@@ -196,9 +197,15 @@ static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
 	char relfile[MAX_TFTP_PATH_LEN+1];
 	char addr_buf[18];
 	int err;
-
+	struct blk_desc *dev_desc;
+	char *model;
+	char boot_cmd[64];
+	char str[64] = "default ";
+	char file_name[64] = "/extlinux/extlinux.conf";
+	int len;
+	char *addr;
+	
 	err = get_bootfile_path(file_path, relfile, sizeof(relfile));
-
 	if (err < 0)
 		return err;
 
@@ -218,6 +225,30 @@ static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
 	printf("Retrieving file: %s\n", relfile);
 
 	sprintf(addr_buf, "%lx", file_addr);
+	
+	if(strcmp(file_path, file_name) == 0){
+		model = env_get("board");
+		do_getfile(cmdtp, relfile, addr_buf);//文件读取到内存地址
+		addr = (char *)file_addr;
+		len = strlen(addr);
+		strcat(str, model);
+		if(strncmp(str, addr, strlen(str)) != 0){
+			dev_desc = rockchip_get_bootdev();
+			snprintf(boot_cmd, sizeof(boot_cmd), "cp.b %p %p %x ", str, addr,(int)strlen(str));//修改内存空间的默认配置
+			run_command(boot_cmd, 0);
+			if (dev_desc->if_type == IF_TYPE_MMC){
+				snprintf(boot_cmd, sizeof(boot_cmd), "fatwrite mmc %d:1 %p %s %x", dev_desc->devnum, addr, file_name, len);//修改后的内存数据写入文件
+				printf("boot model = %s\n",boot_cmd);
+				run_command(boot_cmd, 0);	
+			}
+			if (dev_desc->if_type == IF_TYPE_MTD){
+				
+			}
+		}
+		else {
+			printf("found coolpi_rk3588s_cp4b\n");
+		}
+	}
 
 	return do_getfile(cmdtp, relfile, addr_buf);
 }
@@ -619,6 +650,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	char initrd_str[28];
 	char mac_str[29] = "";
 	char ip_str[68] = "";
+	char str_temp[64];
 	int bootm_argc = 2;
 	int len = 0;
 	ulong kernel_addr;
@@ -695,7 +727,11 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 
 			cli_simple_process_macros(bootargs, finalbootargs);
 			env_set("bootargs", finalbootargs);
-			printf("append: %s\n", finalbootargs);
+			memset(str_temp, 0, sizeof(str_temp));
+			sprintf(str_temp, "rtleth=ethaddr:%s", env_get("ethaddr"));
+			env_update("bootargs", str_temp);
+			//printf("append: %s\n", finalbootargs);
+			printf("append: %s\n", env_get("bootargs"));
 		}
 	}
 
