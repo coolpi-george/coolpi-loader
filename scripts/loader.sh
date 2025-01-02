@@ -29,13 +29,17 @@ if [ ! -f ${INI} ]; then
 	echo "pack loader failed! Can't find: ${INI}"
 	exit 0
 fi
-
+ARCH=`uname -m`
 COUNT=`cat ${INI} | wc -l`
 if [ ${COUNT} -eq 1 ]; then
 	IMG=`sed -n "/PATH=/p" ${INI} | tr -d '\r' | cut -d '=' -f 2`
 	cp ${IMG} ./
 else
-	./tools/boot_merger ${INI}
+	if [ "$ARCH" == "x86_64" ]; then
+		./tools/boot_merger ${INI}
+	else
+		./tools/boot_merger_aarch64 ${INI}
+	fi
 fi
 
 echo "pack loader okay! Input: ${INI}"
