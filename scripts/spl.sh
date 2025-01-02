@@ -99,8 +99,13 @@ else
 	sed -i "s/FlashBoot=.*$/FlashBoot=.\/tmp\/u-boot-spl.bin/" ${TMP_INI}
 	LABEL="SPL"
 fi
-
+ARCH=`uname -m`
+if [ "$ARCH" == "x86_64" ]; then
 ./tools/boot_merger ${TMP_INI}
+else
+./tools/boot_merger_aarch64 ${TMP_INI}
+fi
+
 rm tmp/ -rf
 
 echo "pack loader(${LABEL}) okay! Input: ${INI}"
