@@ -455,6 +455,7 @@ static void scan_run_cmd(void)
 
 int board_late_init(void)
 {
+	struct blk_desc *dev_desc;
 #ifdef CONFIG_ROCKCHIP_SET_ETHADDR
 	rockchip_set_ethaddr();
 #endif
@@ -471,8 +472,19 @@ int board_late_init(void)
 	boot_from_udisk();
 #endif
 	if(pwr_key_flag) {
-        printf("Power Key Setting Enter UMS mode!\n");
-        run_command("ums 0 mmc 0", -1);
+		printf("Power Key Setting Enter UMS mode!\n");
+		dev_desc = rockchip_get_bootdev();
+		if (dev_desc->if_type == IF_TYPE_MMC){
+			if (dev_desc->devnum == 0){
+				run_command("ums 0 mmc 0", 0);
+			}
+			if (dev_desc->devnum == 1){
+				run_command("ums 0 mmc 1", 0);
+			}
+		}
+		if (dev_desc->if_type == IF_TYPE_MTD){
+			run_command("ums 0 usb 0", 0);
+		}
 	}
 #ifdef CONFIG_DM_CHARGE_DISPLAY
 	charge_display();
