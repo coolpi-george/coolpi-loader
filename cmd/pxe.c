@@ -202,8 +202,8 @@ static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
 	char boot_cmd[64];
 	char str[64] = "default ";
 	char file_name[64] = "/extlinux/extlinux.conf";
-	int len;
 	char *addr;
+	int len;
 	
 	err = get_bootfile_path(file_path, relfile, sizeof(relfile));
 	if (err < 0)
@@ -232,17 +232,17 @@ static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
 		addr = (char *)file_addr;
 		len = strlen(addr);
 		strcat(str, model);
-		if(strncmp(str, addr, strlen(str)) != 0){
+		if(strncmp(str, addr, (int)strlen(str)) != 0){
 			dev_desc = rockchip_get_bootdev();
-			snprintf(boot_cmd, sizeof(boot_cmd), "cp.b %p %p %x ", str, addr,(int)strlen(str));//修改内存空间的默认配置
+			snprintf(boot_cmd, sizeof(boot_cmd), "cp.b %p %p %x", str, addr,27);//修改内存空间的默认配置,固定长度
 			run_command(boot_cmd, 0);
 			if (dev_desc->if_type == IF_TYPE_MMC){
 				snprintf(boot_cmd, sizeof(boot_cmd), "fatwrite mmc %d:1 %p %s %x", dev_desc->devnum, addr, file_name, len);//修改后的内存数据写入文件
-				printf("boot model = %s\n",boot_cmd);
-				run_command(boot_cmd, 0);	
+				run_command(boot_cmd, 0);				
 			}
 			if (dev_desc->if_type == IF_TYPE_MTD){
-				
+				snprintf(boot_cmd, sizeof(boot_cmd), "fatwrite usb 0:1 %p %s %x", addr, file_name, len);//修改后的内存数据写入文件
+				run_command(boot_cmd, 0);	
 			}
 		}
 		else {
