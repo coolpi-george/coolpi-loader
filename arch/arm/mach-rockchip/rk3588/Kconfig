@@ -17,6 +17,24 @@ config TARGET_COOLPI_RK3588_CM5V1
 	select BOARD_LATE_INIT
 	help
 	  COOLPI_RK3588_CM5 is a evaluation board for Rockchp RK3588.
+	  
+config TARGET_COOLPI_RK3588_GBOOK
+	bool "COOLPI_RK3588 CM5 GBOOK"
+	select BOARD_LATE_INIT
+	help
+	  COOLPI_RK3588_GBOOK is a Laptop for Rockchp RK3588.
+	  
+config TARGET_COOLPI_RK3588_CM5LZ
+	bool "COOLPI_RK3588 CM5 LZ"
+	select BOARD_LATE_INIT
+	help
+	  COOLPI_RK3588_CM5 is a evaluation board for Rockchp RK3588.
+
+config TARGET_COOLPI_RK3588_CM5TS
+	bool "COOLPI_RK3588 CM5 TS"
+	select BOARD_LATE_INIT
+	help
+	  COOLPI_RK3588_CM5TS is a test board for Rockchp RK3588.
 
 config SYS_SOC
 	default "rockchip"
@@ -27,5 +45,8 @@ config SYS_MALLOC_F_LEN
 source board/rockchip/evb_rk3588/Kconfig
 source board/rockchip/coolpi_rk3588s_cp4b/Kconfig
 source board/rockchip/coolpi_rk3588_cm5v1/Kconfig
+source board/rockchip/coolpi_rk3588_gbook/Kconfig
+source board/rockchip/coolpi_rk3588_cm5lz/Kconfig
+source board/rockchip/coolpi_rk3588_cm5ts/Kconfig
 
 endif
