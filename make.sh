@@ -805,6 +805,15 @@ sub_commands
 clean_files
 make PYTHON=python2 ${ARG_SPL_FWVER} ${ARG_FWVER} CROSS_COMPILE=${TOOLCHAIN} all --jobs=${JOB}
 pack_images
+if [ -d out/$ARG_BOARD ]; then
+    cp -rf *_spl_loader_*.bin out/$ARG_BOARD/loader.bin
+	cp -rf uboot.img out/$ARG_BOARD
+else
+    mkdir -p out/$ARG_BOARD
+	cp -rf *_spl_loader_*.bin out/$ARG_BOARD/loader.bin
+	cp -rf uboot.img out/$ARG_BOARD
+fi
+
 finish
 echo ${TOOLCHAIN}
 date
