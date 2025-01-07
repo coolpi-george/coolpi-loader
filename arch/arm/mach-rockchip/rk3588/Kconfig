@@ -10,7 +10,13 @@ config TARGET_COOLPI_RK3588S_CP4B
 	bool "COOLPI_RK3588S_CP4B"
 	select BOARD_LATE_INIT
 	help
-	  COOLPI_RK3588S_CP4B is a evaluation board for Rockchp RK3588S.
+	  COOLPI_RK3588S_CP4B is a sbc board for Rockchp RK3588S.
+	  
+config TARGET_COOLPI_RK3588S_KHOS
+	bool "COOLPI_RK3588S_KHOS"
+	select BOARD_LATE_INIT
+	help
+	  COOLPI_RK3588S_KHOS is a sbc board for Rockchp RK3588S.
 	
 config TARGET_COOLPI_RK3588_CM5V1
 	bool "COOLPI_RK3588 CM5"
@@ -44,6 +50,7 @@ config SYS_MALLOC_F_LEN
 
 source board/rockchip/evb_rk3588/Kconfig
 source board/rockchip/coolpi_rk3588s_cp4b/Kconfig
+source board/rockchip/coolpi_rk3588s_khos/Kconfig
 source board/rockchip/coolpi_rk3588_cm5v1/Kconfig
 source board/rockchip/coolpi_rk3588_gbook/Kconfig
 source board/rockchip/coolpi_rk3588_cm5lz/Kconfig
