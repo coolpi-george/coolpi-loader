@@ -813,7 +813,16 @@ else
 	cp -rf *_spl_loader_*.bin out/$ARG_BOARD/loader.bin
 	cp -rf uboot.img out/$ARG_BOARD
 fi
-
+ARG_SPL_BIN="spl/u-boot-spl.bin"
+pack_idblock
+dd if=/dev/zero of=${ARG_BOARD}_nor_upgrade.img bs=1K count=8192
+dd if=idblock.bin of=${ARG_BOARD}_nor_upgrade.img bs=1K seek=32
+dd if=idblock.bin of=${ARG_BOARD}_nor_upgrade.img bs=1K seek=544
+dd if=idblock.bin of=${ARG_BOARD}_nor_upgrade.img bs=1K seek=1056
+dd if=uboot.img   of=${ARG_BOARD}_nor_upgrade.img bs=1K seek=2048
+cp ${ARG_BOARD}_nor_upgrade.img out/$ARG_BOARD
+rm ${ARG_BOARD}_nor_upgrade.img
+rm idblock.bin
 finish
 echo ${TOOLCHAIN}
 date
