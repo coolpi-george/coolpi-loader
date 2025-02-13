@@ -197,13 +197,14 @@ static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
 	char relfile[MAX_TFTP_PATH_LEN+1];
 	char addr_buf[18];
 	int err;
-	struct blk_desc *dev_desc;
 	char *model;
 	char boot_cmd[64];
 	char str[64] = "default ";
 	char file_name[64] = "/extlinux/extlinux.conf";
 	char *addr;
-	int len;
+	char *type;
+	char *num;
+	char *len;
 	
 	err = get_bootfile_path(file_path, relfile, sizeof(relfile));
 	if (err < 0)
@@ -228,25 +229,20 @@ static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
 	
 	if(strcmp(file_path, file_name) == 0){
 		model = env_get("board");
+		//printf("board = %s\n",model);
 		do_getfile(cmdtp, relfile, addr_buf);//文件读取到内存地址
 		addr = (char *)file_addr;
-		len = strlen(addr);
+		len = env_get("filesize");
 		strcat(str, model);
 		if(strncmp(str, addr, (int)strlen(str)) != 0){
-			dev_desc = rockchip_get_bootdev();
+			type = env_get("devtype");
+			num  = env_get("devnum");
+			//printf("devtype = %s\n",type);
+			//printf("devnum = %s\n",num);
 			snprintf(boot_cmd, sizeof(boot_cmd), "cp.b %p %p %x", str, addr,27);//修改内存空间的默认配置,固定长度
 			run_command(boot_cmd, 0);
-			if (dev_desc->if_type == IF_TYPE_MMC){
-				snprintf(boot_cmd, sizeof(boot_cmd), "fatwrite mmc %d:1 %p %s %x", dev_desc->devnum, addr, file_name, len);//修改后的内存数据写入文件
-				run_command(boot_cmd, 0);				
-			}
-			if (dev_desc->if_type == IF_TYPE_MTD){
-				snprintf(boot_cmd, sizeof(boot_cmd), "fatwrite usb 0:1 %p %s %x", addr, file_name, len);//修改后的内存数据写入文件
-				run_command(boot_cmd, 0);	
-			}
-		}
-		else {
-			printf("found coolpi_rk3588s_cp4b\n");
+			snprintf(boot_cmd, sizeof(boot_cmd), "fatwrite %s %s:1 %p %s %s",type, num, addr, file_name, len);//修改后的内存数据写入文件
+			run_command(boot_cmd, 0);				
 		}
 	}
 
