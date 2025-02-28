@@ -912,7 +912,8 @@ int arch_cpu_init(void)
 {
 #ifdef CONFIG_SPL_BUILD
 	int secure_reg;
-
+	
+	writel(0x3c003c00,0xfd5f4028);//Enable internal weak pu11-up of debugging serial port
 	/* Set the SDMMC eMMC crypto_ns FSPI access secure area */
 	secure_reg = readl(FIREWALL_DDR_BASE + FW_DDR_MST5_REG);
 	secure_reg &= 0xffff;
