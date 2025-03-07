@@ -15,7 +15,7 @@
 
 	chosen {
 		stdout-path = &uart2;
-		u-boot,spl-boot-order = &sdmmc0, &sdhci, &nandc0, &spi_nand, &spi_nor;
+		u-boot,spl-boot-order = &spi_nor, &sdmmc0, &sdhci, &nandc0, &spi_nand;
 	};
 
 	secure-otp@fe3a0000 {
@@ -85,12 +85,12 @@
 
 &usbhost30 {
 	u-boot,dm-pre-reloc;
-	status = "okay";
+	status = "disabled";
 };
 
 &usbhost_dwc3 {
 	u-boot,dm-pre-reloc;
-	status = "okay";
+	status = "disabled";
 };
 
 &usb2phy0 {
@@ -105,7 +105,7 @@
 
 &u2phy0_host {
 	u-boot,dm-pre-reloc;
-	status = "okay";
+	status = "disabled";
 };
 
 &cru {
