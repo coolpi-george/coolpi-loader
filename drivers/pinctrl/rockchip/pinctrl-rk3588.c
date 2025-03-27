@@ -200,7 +200,10 @@ static void rk3588_calc_pull_reg_and_bit(struct rockchip_pin_bank *bank,
 			*reg = rk3588_p_regs[i][1];
 			break;
 		}
-		BUG_ON(i == 0);
+		if (i == 0) {
+			printk("BUG at %s:%d/%s()!\n", __FILE__, __LINE__, __func__);
+			panic("BUG!");
+		}
 	}
 
 	*regmap = info->regmap_base;
@@ -226,7 +229,10 @@ static void rk3588_calc_drv_reg_and_bit(struct rockchip_pin_bank *bank,
 			*reg = rk3588_ds_regs[i][1];
 			break;
 		}
-		BUG_ON(i == 0);
+		if (i == 0) {
+			printk("BUG at %s:%d/%s()!\n", __FILE__, __LINE__, __func__);
+			panic("BUG!");
+		}
 	}
 
 	*regmap = info->regmap_base;
@@ -252,7 +258,10 @@ static int rk3588_calc_schmitt_reg_and_bit(struct rockchip_pin_bank *bank,
 			*reg = rk3588_smt_regs[i][1];
 			break;
 		}
-		BUG_ON(i == 0);
+		if (i == 0) {
+			printk("BUG at %s:%d/%s()!\n", __FILE__, __LINE__, __func__);
+			panic("BUG!");
+		}
 	}
 
 	*regmap = info->regmap_base;
