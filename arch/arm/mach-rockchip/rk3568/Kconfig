@@ -23,6 +23,12 @@ config TARGET_COOLPI_RK3566_CP3H8
 	select BOARD_LATE_INIT
 	help
 	  COOLPI_RK3566_CP3H8 is a evaluation board for Rockchp RK3566.
+	  
+config TARGET_COOLPI_RK3566_HMI10
+	bool "COOLPI_RK3566_HMI10"
+	select BOARD_LATE_INIT
+	help
+	  COOLPI_RK3566_HMI10 is a evaluation board for Rockchp RK3566.
 
 config SYS_SOC
 	default "rockchip"
@@ -34,5 +40,6 @@ source board/rockchip/evb_rk3568/Kconfig
 source board/rockchip/coolpi_rk3566_cp3b1/Kconfig
 source board/rockchip/coolpi_rk3566_cp3zx/Kconfig
 source board/rockchip/coolpi_rk3566_cp3h8/Kconfig
+source board/rockchip/coolpi_rk3566_hmi10/Kconfig
 
 endif
