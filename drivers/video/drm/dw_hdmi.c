@@ -2664,7 +2664,7 @@ int rockchip_dw_hdmi_get_timing(struct rockchip_connector *conn, struct display_
 #ifdef CONFIG_SPL_BUILD
 	conn_state->disp_info = rockchip_get_disp_info(conn_state->type, hdmi->id);
 #endif
-	drm_rk_filter_whitelist(&hdmi->edid_data);
+	//drm_rk_filter_whitelist(&hdmi->edid_data);
 	rockchip_dw_hdmi_mode_valid(hdmi);
 	if (hdmi->phy.ops->mode_valid)
 		hdmi->phy.ops->mode_valid(conn, hdmi, state);
