@@ -1477,7 +1477,7 @@ static int _rockchip_dw_hdmi_qp_get_timing(struct rockchip_connector *conn,
 		hdmi->edid_data.preferred_mode = &hdmi->edid_data.mode_buf[0];
 		printf("failed to get edid\n");
 	}
-	drm_rk_filter_whitelist(&hdmi->edid_data);
+	//drm_rk_filter_whitelist(&hdmi->edid_data);
 	rockchip_dw_hdmi_qp_mode_valid(hdmi);
 	drm_mode_max_resolution_filter(&hdmi->edid_data,
 				       &state->crtc_state.max_output);
