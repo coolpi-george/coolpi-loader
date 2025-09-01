@@ -53,6 +53,18 @@ config TARGET_COOLPI_RK3588_CM5SS
 	select BOARD_LATE_INIT
 	help
 	  COOLPI_RK3588_CM5TJSS is a test board for Rockchp RK3588.
+	  
+config TARGET_COOLPI_RK3588_V86V1
+	bool "COOLPI_RK3588 CM5 JXX"
+	select BOARD_LATE_INIT
+	help
+	  COOLPI_RK3588_CM5V86 is a test board for Rockchp RK3588.
+	  
+config TARGET_COOLPI_RK3588_AIBOX
+	bool "COOLPI_RK3588 CM5 AIBOX"
+	select BOARD_LATE_INIT
+	help
+	  COOLPI_RK3588_AIBOX is a test board for Rockchp RK3588.
 
 config SYS_SOC
 	default "rockchip"
@@ -69,5 +81,7 @@ source board/rockchip/coolpi_rk3588_cm5lz/Kconfig
 source board/rockchip/coolpi_rk3588_cm5ts/Kconfig
 source board/rockchip/coolpi_rk3588_cm5pc/Kconfig
 source board/rockchip/coolpi_rk3588_cm5ss/Kconfig
+source board/rockchip/coolpi_rk3588_v86v1/Kconfig
+source board/rockchip/coolpi_rk3588_aibox/Kconfig
 
 endif
