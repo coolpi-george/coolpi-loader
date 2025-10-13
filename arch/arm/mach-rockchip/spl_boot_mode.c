@@ -20,7 +20,7 @@ static int misc_require_recovery(struct blk_desc *dev_desc, u32 bcb_offset)
 		return 0;
 
 	if (part_get_info_by_name(dev_desc, PART_MISC, &part) < 0) {
-		printf("No misc partition\n");
+		//printf("No misc partition\n");
 		return 0;
 	}
 

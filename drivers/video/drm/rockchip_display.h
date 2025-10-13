@@ -57,6 +57,11 @@ enum data_format {
 	ROCKCHIP_FMT_YUV444SP,
 };
 
+enum udpate_ret_t {
+	UPDATE_SUCCESS,     // 0 = Success
+	UPDATE_FAIL,        // 1 = Failure
+};
+
 enum display_mode {
 	ROCKCHIP_DISPLAY_FULLSCREEN,
 	ROCKCHIP_DISPLAY_CENTER,
@@ -347,3 +352,7 @@ int rockchip_spl_dw_hdmi_probe(struct connector_state *conn_state);
 int inno_spl_hdmi_phy_probe(struct display_state *state);
 #endif
 #endif
+int tf_load_file(char *filename, unsigned long addr, int size, int *len);
+int emmc_load_file(char *filename, unsigned long addr, int size, int *len);
+int load_logo_from_disk(char *filename, unsigned long addr, int size, int *len);
+int logo_load_mem(char *filename, unsigned long addr, int size, int *len);
