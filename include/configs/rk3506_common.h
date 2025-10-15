@@ -62,10 +62,11 @@
  * ramdisk:  24M - ...
  */
 #define ENV_MEM_LAYOUT_SETTINGS \
+	"distro_bootpart=2\0"	\
 	"scriptaddr=0x00b00000\0"	\
 	"pxefile_addr_r=0x00c00000\0"	\
 	"fdt_addr_r=0x00063000\0"	\
-	"kernel_addr_r=0x00108000\0"	\
+	"kernel_addr_r=0x00a08000\0"	\
 	"kernel_addr_c=0x01100000\0"	\
 	"ramdisk_addr_r=0x01800000\0"
 
@@ -77,16 +78,6 @@
 	ROCKCHIP_DEVICE_SETTINGS \
 	RKIMG_DET_BOOTDEV \
 	BOOTENV
-
-#undef RKIMG_BOOTCOMMAND
-#ifdef CONFIG_FIT_SIGNATURE
-#define RKIMG_BOOTCOMMAND		\
-	"boot_fit;"
-#else
-#define RKIMG_BOOTCOMMAND		\
-	"boot_fit;"			\
-	"boot_android ${devtype} ${devnum};"
 #endif
 
-#endif
 #endif

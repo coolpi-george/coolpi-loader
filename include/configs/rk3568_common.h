@@ -83,6 +83,7 @@
 #define ROCKUSB_FSG_BUFLEN		0x400000
 
 #define ENV_MEM_LAYOUT_SETTINGS \
+	"distro_bootpart=1\0"	\
 	"scriptaddr=0x00c00000\0" \
 	"pxefile_addr_r=0x00e00000\0" \
 	"fdt_addr_r=0x08300000\0" \

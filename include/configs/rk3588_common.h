@@ -80,6 +80,7 @@
  * compressed kernel:   84M ~ 130M
  */
 #define ENV_MEM_LAYOUT_SETTINGS \
+	"distro_bootpart=1\0"	\
 	"scriptaddr=0x00500000\0" \
 	"pxefile_addr_r=0x00600000\0" \
 	"fdt_addr_r=0x08300000\0" \

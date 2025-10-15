@@ -230,7 +230,7 @@ int rockchip_get_boot_mode(void)
 int setup_boot_mode(void)
 {
 	char env_preboot[256] = {0};
-
+	
 	switch (rockchip_get_boot_mode()) {
 	case BOOT_MODE_BOOTLOADER:
 		printf("enter fastboot!\n");
@@ -246,7 +246,7 @@ int setup_boot_mode(void)
 		break;
 	case BOOT_MODE_UMS:
 		printf("enter UMS!\n");
-		env_set("preboot", "setenv preboot; ums mmc 0");
+		env_set("preboot", "setenv preboot; ums mmc 0:${distro_bootpart}");
 		break;
 #if defined(CONFIG_CMD_DFU)
 	case BOOT_MODE_DFU:
