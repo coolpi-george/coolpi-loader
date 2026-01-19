@@ -243,7 +243,7 @@ static int get_relfile(cmd_tbl_t *cmdtp, const char *file_path,
 			//printf("devnum = %s\n",num);
 			snprintf(boot_cmd, sizeof(boot_cmd), "cp.b %p %p %x", str, addr,27);//修改内存空间的默认配置,固定长度
 			run_command(boot_cmd, 0);
-			snprintf(boot_cmd, sizeof(boot_cmd), "fatwrite %s %s:%s %p %s %s",type, num, part, addr, file_name, len);//修改后的内存数据写入文件
+			snprintf(boot_cmd, sizeof(boot_cmd), "fatwrite %s %s:%s %p %s %s",type, num, part, addr, file_name, len+2);//修改后的内存数据写入文件
 			run_command(boot_cmd, 0);				
 		}
 	}
