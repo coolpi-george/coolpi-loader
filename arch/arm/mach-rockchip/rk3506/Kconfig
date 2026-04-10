@@ -12,6 +12,12 @@ config TARGET_COOLPI_RK3506B_CP2B
 	help
 	  COOLPI_RK3506B_CP2B is a evaluation board for Rockchip RK3506B.
 
+config TARGET_COOLPI_RK3506_CP2BP
+	bool "COOLPI_RK3506_CP2BP"
+	select BOARD_LATE_INIT
+	help
+	  COOLPI_RK3506_CP2BP is a evaluation board for Rockchip RK3506B.
+
 config SYS_SOC
 	default "rockchip"
 
@@ -20,5 +26,6 @@ config SYS_MALLOC_F_LEN
 
 source board/rockchip/evb_rk3506/Kconfig
 source board/rockchip/coolpi_rk3506b_cp2b/Kconfig
+source board/rockchip/coolpi_rk3506_cp2bp/Kconfig
 
 endif

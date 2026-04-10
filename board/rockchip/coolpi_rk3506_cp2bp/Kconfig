@@ -1,0 +1,15 @@
+if TARGET_COOLPI_RK3506_CP2BP
+
+config SYS_BOARD
+	default "coolpi_rk3506_cp2bp"
+
+config SYS_VENDOR
+	default "rockchip"
+
+config SYS_CONFIG_NAME
+	default "coolpi_rk3506_cp2bp"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif
