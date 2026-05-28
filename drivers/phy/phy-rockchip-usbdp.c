@@ -9,7 +9,9 @@
 #include <clk.h>
 #include <dm.h>
 #include <dm/lists.h>
+#include <dm/device.h>
 #include <dm/of.h>
+#include <dm/ofnode.h>
 #include <dm/of_access.h>
 #include <generic-phy.h>
 #include <linux/bitfield.h>
@@ -76,6 +78,7 @@
 #define TRSV_LN2_MON_RX_CDR_LOCK_DONE		BIT(0)
 
 #define BIT_WRITEABLE_SHIFT			16
+#define TUNE_SEQ_PROP_NAME			"rockchip,udphy-tune-sequence"
 #define PHY_AUX_DP_DATA_POL_NORMAL		0
 #define PHY_AUX_DP_DATA_POL_INVERT		1
 #define PHY_LANE_MUX_USB			0
@@ -192,6 +195,10 @@ struct rockchip_udphy {
 
 	/* PHY const config */
 	const struct rockchip_udphy_cfg *cfgs;
+
+	/* PHY tune sequence from DT */
+	struct reg_sequence *tune_seqs;
+	unsigned int tune_seqs_cnt;
 };
 
 #ifdef CONFIG_ROCKCHIP_RK3576
@@ -381,8 +388,10 @@ static const struct reg_sequence udphy_init_sequence[] = {
 	{0x0070, 0x7D}, {0x0074, 0x68},
 	{0x0AF4, 0x1A}, {0x1AF4, 0x1A},
 	{0x0440, 0x3F}, {0x10D4, 0x08},
-	{0x20D4, 0x08}, {0x00D4, 0x30},
-	{0x0024, 0x6e},
+	//{0x20D4, 0x08}, {0x00D4, 0x30},
+	//{0x0024, 0x6e},
+	{0x20D4, 0x08}, {0x0024, 0x6e},
+	{0x09C0, 0x0A}, {0x19C0, 0x0A}
 };
 
 static inline int grfreg_write(struct regmap *base,
@@ -680,6 +689,11 @@ static int udphy_status_check(struct rockchip_udphy *udphy)
 			if (ret)
 				dev_notice(udphy->dev, "trsv ln2 mon rx cdr lock timeout\n");
 		}
+
+		if (ret) {
+			udphy_u3_port_disable(udphy, true);
+			dev_warn(udphy->dev, "disable u3 port because udphy not ready\n");
+		}
 	}
 
 	return 0;
@@ -712,6 +726,16 @@ static int udphy_init(struct rockchip_udphy *udphy)
 	if (ret) {
 		dev_err(udphy->dev, "refclk set error %d\n", ret);
 		goto assert_apb;
+	}
+	
+	/* Set udphy tune sequence */
+	if (udphy->tune_seqs) {
+		ret = __regmap_multi_reg_write(udphy->pma_regmap, udphy->tune_seqs,
+					     udphy->tune_seqs_cnt);
+		if (ret) {
+			dev_err(udphy->dev, "tune sequence set error %d\n", ret);
+			goto assert_apb;
+		}
 	}
 
 	/* Step 3: configure lane mux */
@@ -781,6 +805,62 @@ static int udphy_disable(struct rockchip_udphy *udphy)
 	return 0;
 }
 
+static int rk_udphy_get_tune_sequence(struct rockchip_udphy *udphy)
+{
+	struct udevice *dev = udphy->dev;
+	ofnode np = dev_ofnode(dev);
+	u32 *tune_data;
+	const void *prop;
+	int i, count;
+	int ret;
+
+	prop = ofnode_get_property(np, TUNE_SEQ_PROP_NAME, &count);
+	if (!prop) {
+		dev_dbg(dev, "No tune sequence found\n");
+		return 0;
+	}
+	count = count / sizeof(u32);
+
+	if (count % 3 != 0) {
+		dev_err(dev, "Invalid udphy-tune-sequence count %d\n", count);
+		return -EINVAL;
+	}
+
+	tune_data = kcalloc(count, sizeof(u32), GFP_KERNEL);
+	if (!tune_data)
+		return -ENOMEM;
+
+	ret = ofnode_read_u32_array(np, TUNE_SEQ_PROP_NAME, tune_data, count);
+	if (ret) {
+		dev_err(dev, "Failed to read tune sequence: %d\n", ret);
+		goto out;
+	}
+
+	udphy->tune_seqs_cnt = count / 3;
+	udphy->tune_seqs = devm_kcalloc(dev, udphy->tune_seqs_cnt,
+					sizeof(*udphy->tune_seqs), GFP_KERNEL);
+	if (!udphy->tune_seqs) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	for (i = 0; i < udphy->tune_seqs_cnt; i++) {
+		udphy->tune_seqs[i].reg = tune_data[i * 3];
+		udphy->tune_seqs[i].def = tune_data[i * 3 + 1];
+		udphy->tune_seqs[i].delay_us = tune_data[i * 3 + 2];
+
+		dev_dbg(dev, "tune_seqs[%d]: 0x%04x, 0x%02x, %d\n", i,
+			udphy->tune_seqs[i].reg,
+			udphy->tune_seqs[i].def,
+			udphy->tune_seqs[i].delay_us);
+	}
+
+out:
+	kfree(tune_data);
+	return ret;
+}
+
+
 static int udphy_parse_lane_mux_data(struct rockchip_udphy *udphy, struct udevice *dev)
 {
 	const void *prop;
@@ -833,8 +913,9 @@ static int udphy_parse_lane_mux_data(struct rockchip_udphy *udphy, struct udevic
 	return 0;
 }
 
-static int udphy_parse_dt(struct rockchip_udphy *udphy, struct udevice *dev)
+static int udphy_parse_dt(struct rockchip_udphy *udphy)
 {
+	struct udevice *dev = udphy->dev;
 	enum usb_device_speed maximum_speed;
 	int ret;
 
@@ -886,6 +967,10 @@ static int udphy_parse_dt(struct rockchip_udphy *udphy, struct udevice *dev)
 		maximum_speed = usb_get_maximum_speed(dev->node);
 		udphy->hs = maximum_speed <= USB_SPEED_HIGH ? true : false;
 	}
+	
+	ret = rk_udphy_get_tune_sequence(udphy);
+	if (ret)
+		return ret;
 
 	ret = udphy_clk_init(udphy, dev);
 	if (ret)
@@ -1282,7 +1367,9 @@ static int rockchip_udphy_probe(struct udevice *dev)
 		return ret;
 	udphy->pma_regmap->base += UDPHY_PMA;
 
-	ret = udphy_parse_dt(udphy, dev);
+//	ret = udphy_parse_dt(udphy, dev);
+	//udphy->dev = dev;
+	ret = udphy_parse_dt(udphy);
 	if (ret)
 		return ret;
 
