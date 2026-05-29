@@ -72,6 +72,12 @@ config TARGET_COOLPI_RK3588_CHN60
 	help
 	  COOLPI_RK3588_CHN60 is a test board for Rockchp RK3588.
 
+config TARGET_COOLPI_RK3588_HMI11
+	bool "COOLPI_RK3588 CM5 HMI11"
+	select BOARD_LATE_INIT
+	help
+	  COOLPI_RK3588_HMI11 is a test board for Rockchp RK3588.
+
 config SYS_SOC
 	default "rockchip"
 
@@ -90,5 +96,6 @@ source board/rockchip/coolpi_rk3588_cm5ss/Kconfig
 source board/rockchip/coolpi_rk3588_v86v1/Kconfig
 source board/rockchip/coolpi_rk3588_aibox/Kconfig
 source board/rockchip/coolpi_rk3588_chn60/Kconfig
+source board/rockchip/coolpi_rk3588_hmi11/Kconfig
 
 endif
